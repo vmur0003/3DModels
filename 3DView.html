@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset=UTF-8 />
+    <link rel="stylesheet" type="text/css" href="css/styles.css" />
+  </head>
+  <body>
+    <script src="js/three.js"></script>
+    <script src="https://cdn.rawgit.com/mrdoob/three.js/master/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="js/OrbitControls.js"></script>
+    <script>
+      let scene, camera, renderer;
+
+      function init() {
+        //creating a new scene for the model
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000);
+
+        // initialising the camera parameters like rotation, position,grid sizeetc.
+        camera = new THREE.PerspectiveCamera(40,window.innerWidth/window.innerHeight,1,5000);
+        camera.rotation.y = 45/180*Math.PI;
+        camera.position.x = 1500;
+        camera.position.y = 1000;
+        camera.position.z = 1000;
+
+        //creating a highlight to make sure the model is lit evenly
+        highlight = new THREE.AmbientLight (0x404040,10);
+        scene.add(highlight);
+        // adding a directional light to ensure enough lighting when the model is rotated
+        directionalLight = new THREE.DirectionalLight(0xffffff,5);
+        directionalLight.position.set(0,1,0);
+        directionalLight.castShadow = true;
+        scene.add(directionalLight);
+
+        // initialising a renderer to render the model
+        renderer = new THREE.WebGLRenderer({antialias:true});
+        renderer.setSize(window.innerWidth,window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // initialising a orbit control for providing the user with a 360 deg control over the model
+        controls = new THREE.OrbitControls(camera,renderer.domElement);
+        controls.addEventListener('change', renderer);
+
+        //loading the model
+        let loader = new THREE.GLTFLoader();
+        loader.load('http://127.0.0.1:5500/scene.gltf', function(gltf){
+          car = gltf.scene;
+          car.scale.set(30,30,30);
+          scene.add(gltf.scene);
+          animate();
+        });
+      }
+      //recursive animation loop for rendering each time the user moves the model 
+      function animate() {
+        requestAnimationFrame(animate);
+        car.rotation.y += 0.01;
+        renderer.render(scene,camera);
+      }
+      init();
+    </script>
+  </body>
+</html>
